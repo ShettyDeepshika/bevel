@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: sbi-ca
+  namespace: sbi
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: sbi-ca
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-local
+        namespace: flux-local
+      chart: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: sbi
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+ 
+    server:
+      name: ca
+      tlsstatus: true
+      admin: sbi-admin 
+  
+    storage:
+      storageclassname: sbisc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://54.208.110.16:8200
+      authpath: localsbi-auth
+      secretcert: secretsv2/data/crypto/peerOrganizations/sbi/ca?ca.sbi-cert.pem
+      secretkey: secretsv2/data/crypto/peerOrganizations/sbi/ca?sbi-CA.key
+      secretadminpass: secretsv2/data/credentials/sbi/ca/sbi?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: none
+      type: peer
+      external_url_suffix: bank.com
