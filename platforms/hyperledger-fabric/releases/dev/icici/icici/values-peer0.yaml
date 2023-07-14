@@ -1,0 +1,78 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: icici-peer0
+  namespace: icici
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: icici-peer0
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-local
+        namespace: flux-local
+      chart: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: icici
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.icici:7051
+      gossipexternalendpoint: peer0.icici:7051
+      localmspid: iciciMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.2
+      couchdb:
+        username: icici-user
+
+    storage:
+      peer:
+        storageclassname: icicisc
+        storagesize: 512Mi
+      couchdb:
+        storageclassname: icicisc
+        storagesize: 1Gi
+
+    vault:
+      role: vault-role
+      address: http://54.208.110.16:8200
+      authpath: localicici-auth
+      secretprefix: secretsv2/data/crypto/peerOrganizations/icici/peers/peer0.icici
+      secretambassador: secretsv2/data/crypto/peerOrganizations/icici/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secretsv2/data/credentials/icici/couchdb/icici?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: "none"
+      external_url_suffix: bank.com
+
+    config:
+      pod:
+        resources:
+          limits:
+            memory: 512M
+            cpu: 1
+          requests:
+            memory: 512M
+            cpu: 0.5
