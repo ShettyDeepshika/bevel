@@ -1,0 +1,53 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-rbi
+  namespace: rbi
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: anchorpeer-allchannel-rbi
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-local
+        namespace: flux-local
+      chart: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: rbi
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.rbi:7051
+      localmspid: rbiMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://54.210.44.10:8200
+      authpath: localrbi-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/rbi/users/admin
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/rbi/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer1.supplychain:7050
+    anchorstx: |-
+      CqYCChgKFggCGgYI+cDUpQYiCmFsbGNoYW5uZWwSiQIKhgIKCmFsbGNoYW5uZWwSXxJdCgtBcHBs
+      aWNhdGlvbhJOCAESSgoGcmJpTVNQEkAaBwoDTVNQEgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMS
+      ACIKCgZBZG1pbnMSACIPCgtFbmRvcnNlbWVudBIAGpYBEpMBCgtBcHBsaWNhdGlvbhKDAQgBEn8K
+      BnJiaU1TUBJ1CAEaKQoLQW5jaG9yUGVlcnMSGhIQCg4KCXBlZXIwLnJiaRCLNxoGQWRtaW5zGgcK
+      A01TUBIAIg8KC0VuZG9yc2VtZW50EgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1p
+      bnMSACoGQWRtaW5z
+
