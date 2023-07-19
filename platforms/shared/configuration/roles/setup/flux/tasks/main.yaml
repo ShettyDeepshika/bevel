@@ -20,17 +20,6 @@
   tags:
     - molecule-idempotence-notest
 
-# - name: create flux-local namespace
-#   shell: |
-#     export NAMESPACE=flux-local
-#     KUBECONFIG={{ kubernetes }} kubectl create  namespace $NAMESPACE
-#   vars:
-#     kubernetes: "{{ item.k8s.config_file }}"
-#   # vars:
-#   #   kubernetes: "{{ item.k8s.config_file }}"
-#   # loop: "{{ network['organizations'] }}"
-
-
 - name: Install flux cli and bootstrap flux v2
   shell: |
     {{ bin_install_dir }}/flux bootstrap git \
