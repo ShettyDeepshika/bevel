@@ -14,7 +14,7 @@
 
     - name: "create network.yaml file"
       template:
-        src: "network.tpl"
+        src: "{{ playbook_dir }}/../../../build/network.tpl"
         dest: "{{ playbook_dir }}/../../../build/{{filename}}.yaml"
       vars:
         ordererOrg1: "{{ordererOrg}}"
