@@ -6,9 +6,7 @@
 
 ---
 - name: create flux-local namespace
-  shell: |
-    export NAMESPACE=flux-local
-    KUBECONFIG= kubectl proxy & 
+  shell: | 
     kubectl create ns flux-local
 
 - name: Install flux cli
