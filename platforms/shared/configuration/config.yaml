@@ -1,0 +1,24 @@
+# This task creates the json files for CA servers
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: "Remove old network file"
+      file:
+        path: "{{ playbook_dir }}/../../../build/{{filename}}.yaml"
+        state: absent
+      vars:
+        filename: "{{configFile}}"
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "create network.yaml file"
+      template:
+        src: "network.tpl"
+        dest: "{{ playbook_dir }}/../../../build/{{filename}}.yaml"
+      vars:
+        ordererOrg1: "{{ordererOrg}}"
+        peerOrg1: "{{peerOrg1}}"
+        peerOrg2: "{{peerOrg2}}"
+        peerOrg3: "{{peerOrg3}}"
+        filename: "{{configFile}}"

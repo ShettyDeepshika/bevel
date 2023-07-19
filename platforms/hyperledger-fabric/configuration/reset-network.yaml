@@ -17,70 +17,81 @@
   no_log: "{{ no_ansible_log | default(false) }}"
   tasks:
     # Delete Vault and Kubernetes secrets.
-    - include_role: 
-        name: "delete/vault_secrets"
-      vars:
-        component_name: "{{ item.name | lower }}"
-        org_name: "{{ item.name | lower }}"
-        component_type: "{{ item.type | lower }}"
-        services: "{{ item.services }}"
-        kubernetes: "{{ item.k8s }}"
-      loop: "{{ network['organizations'] }}"
+    # - include_role: 
+    #     name: "delete/vault_secrets"
+    #   vars:
+    #     component_name: "{{ item.name | lower }}"
+    #     org_name: "{{ item.name | lower }}"
+    #     component_type: "{{ item.type | lower }}"
+    #     services: "{{ item.services }}"
+    #     kubernetes: "{{ item.k8s }}"
+    #   loop: "{{ network['organizations'] }}"
 
-    # Uninstalling Flux is needed so that everything is clean
-    # remove this if not needed
-    - name: Uninstall flux
-      k8s:
-        name: flux-{{ network.env.type }}
-        api_version: v1
-        kind: Namespace
-        state: absent
-        kubeconfig: "{{ kubernetes.config_file }}"
-      vars:
-        kubernetes: "{{ item.k8s }}"
-      loop: "{{ network['organizations'] }}"
-      ignore_errors: yes
+    # # Uninstalling Flux is needed so that everything is clean
+    # # remove this if not needed
+    # - name: Uninstall flux
+    #   k8s:
+    #     name: flux-{{ network.env.type }}
+    #     api_version: v1
+    #     kind: Namespace
+    #     state: absent
+    #     kubeconfig: "{{ kubernetes.config_file }}"
+    #   vars:
+    #     kubernetes: "{{ item.k8s }}"
+    #   loop: "{{ network['organizations'] }}"
+    #   ignore_errors: yes
 
-    # Delete Helmreleases
-    # Change this file if you have new Helreleases to delete
-    - include_role:
-        name: "delete/flux_releases"
-      vars:
-        component_name: "{{ item.name | lower }}"
-        org_name: "{{ item.name | lower }}"
-        component_type: "{{ item.type | lower}}"
-        component_services: "{{ item.services }}"
-        kubernetes: "{{ item.k8s }}"
-      loop: "{{ network['organizations'] }}"
+    # # Delete Helmreleases
+    # # Change this file if you have new Helreleases to delete
+    # - include_role:
+    #     name: "delete/flux_releases"
+    #   vars:
+    #     component_name: "{{ item.name | lower }}"
+    #     org_name: "{{ item.name | lower }}"
+    #     component_type: "{{ item.type | lower}}"
+    #     component_services: "{{ item.services }}"
+    #     kubernetes: "{{ item.k8s }}"
+    #   loop: "{{ network['organizations'] }}"
 
-    # Delete genesis
-    - include_role:
-        name: "delete/genesis"
-      vars:
-        component_name: "{{ item.name | lower }}"
-      loop: "{{ network['organizations'] }}"
-      when: item.type == "orderer"
+    # # Delete genesis
+    # - include_role:
+    #     name: "delete/genesis"
+    #   vars:
+    #     component_name: "{{ item.name | lower }}"
+    #   loop: "{{ network['organizations'] }}"
+    #   when: item.type == "orderer"
 
-    # Delete Gitops file and check-in
-    - include_role:
-        name: "delete/gitops_files"
-      vars:
-        gitops: "{{ item.gitops }}"
-        release_dir: "{{playbook_dir}}/../../../{{item.gitops.release_dir}}/{{ item.name|lower }}"
-        flux_mainfest_dir: "{{playbook_dir}}/../../../{{item.gitops.release_dir}}/flux-{{ network.env.type }}"
-      loop: "{{ network['organizations'] }}"
+    # # Delete Gitops file and check-in
+    # - include_role:
+    #     name: "delete/gitops_files"
+    #   vars:
+    #     gitops: "{{ item.gitops }}"
+    #     release_dir: "{{playbook_dir}}/../../../{{item.gitops.release_dir}}/{{ item.name|lower }}"
+    #     flux_mainfest_dir: "{{playbook_dir}}/../../../{{item.gitops.release_dir}}/flux-{{ network.env.type }}"
+    #   loop: "{{ network['organizations'] }}"
 
-    # delete orderer certs directory
-    - name: Remove orderers certs directory
-      file:
-        path:  "{{ playbook_dir }}/../charts/catools/certs"
-        state: absent
+    # # delete orderer certs directory
+    # - name: Remove orderers certs directory
+    #   file:
+    #     path:  "{{ playbook_dir }}/../charts/catools/certs"
+    #     state: absent
 
-    # delete build directory
-    - name: Remove build directory
-      file:
-        path: "./build"
-        state: absent
+    # # delete build directory
+    # - name: Remove build directory
+    #   file:
+    #     path: "./build"
+    #     state: absent
+      
+    # - name: Delete namespaces
+    #   shell: |
+    #     export NAMESPACE={{ item.name | lower }}
+    #     KUBECONFIG={{ kubernetes }}  kubectl proxy &
+    #     kubectl get namespace $NAMESPACE -o json |jq '.spec = {"finalizers":[]}' >temp.json
+    #     curl -k -H "Content-Type: application/json" -X PUT --data-binary @temp.json 127.0.0.1:8001/api/v1/namespaces/$NAMESPACE/finalize
+    #   vars:
+    #     kubernetes: "{{ item.k8s.config_file }}"
+    #     # component_name: "{{ item.name | lower }}"
+    #   loop: "{{ network['organizations'] }}"
   vars: #These variables can be overriden from the command line
     privilege_escalate: false           #Default to NOT escalate to root privledges
     install_os: "linux"                 #Default to linux OS
