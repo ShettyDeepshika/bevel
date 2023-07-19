@@ -25,7 +25,7 @@
     export NAMESPACE=flux-local
     KUBECONFIG={{ kubernetes }} kubectl proxy & 
     kubectl create  namespace $NAMESPACE
-  environment:
+  vars:
     kubernetes: "{{ item.k8s.config_file }}"
   # vars:
   #   kubernetes: "{{ item.k8s.config_file }}"
