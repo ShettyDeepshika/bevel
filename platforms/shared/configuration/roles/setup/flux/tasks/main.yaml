@@ -5,10 +5,6 @@
 ##############################################################################################
 
 ---
-- name: create flux-local namespace
-  shell: | 
-    kubectl create ns flux-local
-
 - name: Install flux cli
   shell: |
     curl -s https://fluxcd.io/install.sh | bash -s {{ bin_install_dir }}
