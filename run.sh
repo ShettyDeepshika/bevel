@@ -35,7 +35,7 @@ sleep 10
 #Reset the network
 ./reset.sh configFile=$configFile
 # ansible-playbook -vv /home/bevel/platforms/shared/configuration/site.yaml --inventory-file=/home/bevel/platforms/shared/inventory/ -e "@/home/bevel/build/$configFile.yaml" -e 'ansible_python_interpreter=/usr/bin/python3' -e "reset='true'"
- sleep 30 
+#  sleep 30 
 # echo "Running the playbook..."
 exec ansible-playbook -vv /home/bevel/platforms/shared/configuration/site.yaml --inventory-file=/home/bevel/platforms/shared/inventory/ -e "@/home/bevel/build/$configFile.yaml" -e 'ansible_python_interpreter=/usr/bin/python3' -e "reset == 'false'"
 
