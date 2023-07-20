@@ -1,0 +1,53 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-sbi
+  namespace: sbi
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: anchorpeer-allchannel-sbi
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-local
+        namespace: flux-local
+      chart: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: sbi
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.sbi:7051
+      localmspid: sbiMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://100.26.28.2:8200
+      authpath: localsbi-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/sbi/users/admin
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/sbi/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer1.supplychain:7050
+    anchorstx: |-
+      CqYCChgKFggCGgYIroXkpQYiCmFsbGNoYW5uZWwSiQIKhgIKCmFsbGNoYW5uZWwSXxJdCgtBcHBs
+      aWNhdGlvbhJOCAESSgoGc2JpTVNQEkAaBwoDTVNQEgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMS
+      ACIKCgZBZG1pbnMSACIPCgtFbmRvcnNlbWVudBIAGpYBEpMBCgtBcHBsaWNhdGlvbhKDAQgBEn8K
+      BnNiaU1TUBJ1CAEaKQoLQW5jaG9yUGVlcnMSGhIQCg4KCXBlZXIwLnNiaRCLNxoGQWRtaW5zGgcK
+      A01TUBIAIgsKB1JlYWRlcnMSACILCgdXcml0ZXJzEgAiCgoGQWRtaW5zEgAiDwoLRW5kb3JzZW1l
+      bnQSACoGQWRtaW5z
+
