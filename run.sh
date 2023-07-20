@@ -32,7 +32,7 @@ KUBECONFIG=/home/bevel/build/config
 # ajv validate -s /home/bevel/platforms/network-schema.json -d /home/bevel/build/network.yaml 
 
 sleep 10
-# #Reset the network
+#Reset the network
 ./reset.sh configFile=$configFile
 
 
