@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: peer0-sbi-cli
+  namespace: sbi
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: peer0-sbi-cli
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-local
+        namespace: flux-local
+      chart: platforms/hyperledger-fabric/charts/fabric_cli    
+  values:
+    metadata:
+      namespace: sbi
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    storage:
+      class: sbisc
+      size: 256Mi
+    vault:
+      role: vault-role
+      address: http://3.90.226.44:8200
+      authpath: localsbi-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/sbi/users/admin
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/sbi/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      tls: false
+    peer:
+      name: peer0
+      localmspid: sbiMSP
+      tlsstatus: true
+      address: peer0.sbi:7051
+    orderer:
+      address: orderer1.supplychain:7050
